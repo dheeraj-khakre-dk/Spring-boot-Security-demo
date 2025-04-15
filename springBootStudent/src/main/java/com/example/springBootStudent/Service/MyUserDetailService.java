@@ -1,7 +1,5 @@
 package com.example.springBootStudent.Service;
 
-import java.util.List;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,10 +30,4 @@ public class MyUserDetailService implements  UserDetailsService {
         }
         return new UserPrincipal(user);
     }
-
-    public List<User> getAllUser() {
-        List<User> users = myUserRepo.findAll();
-        return users;
-    }
-    
 }

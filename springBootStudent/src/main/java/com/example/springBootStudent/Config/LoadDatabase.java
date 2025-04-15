@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.springBootStudent.Model.Student;
 import com.example.springBootStudent.Model.User;
@@ -20,12 +20,15 @@ public class LoadDatabase {
 
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
-    @Autowired
-    private StudentRepository studentRepository;
+    private final StudentRepository studentRepository;
+    private  final MyUserRepo userRepository;
+    private final PasswordEncoder encoder;
 
-    @Autowired
-    private MyUserRepo userRepository;
-
+    public LoadDatabase(PasswordEncoder encoder, StudentRepository studentRepository, MyUserRepo userRepository) {
+        this.encoder = encoder;
+        this.studentRepository = studentRepository;
+        this.userRepository = userRepository;
+    }
     @Bean
     CommandLineRunner initDatabase() {
         return args -> {
@@ -44,18 +47,14 @@ public class LoadDatabase {
             studentRepository.saveAll(students);
 
             List<User> users = List.of(
-                    new User(1, "dheeraj khakre", "{noop}dheeraj@123"),
-                    new User(2, "reena khakre", "{noop}reena@123"),
-                    new User(3, "alkesh khakre", "{noop}alkesh@123"),
-                    new User(4, "amit", "{noop}amit@123"),
-                    new User(5, "gopal solunki", "{noop}gopal@123"),
-                    new User(6, "dev solanki", "{noop}dev@123"),
-                    new User(7, "payal", "{noop}payal@123"),
-                    new User(8, "sakshi jain", "{noop}sakshi@123"),
-                    new User(9, "somati khakre", "{noop}somati@123"),
-                    new User(10, "akki", "{noop}akki@123"));
+                    new User(null, "dheeraj", encoder.encode("dheeraj@123")),
+                    new User(null, "reena", encoder.encode("reena@123")),
+                    new User(null, "alkesh", encoder.encode("alkesh@123")),
+                    new User(null, "amit", encoder.encode("amit@123")),
+                    new User(null, "akki", encoder.encode("akki@123")));
 
             userRepository.saveAll(users);
+             System.out.println(users);
 
             // Log the saved students and users
             studentRepository.findAll().forEach(student -> log.info("Preloaded Student: " + student));

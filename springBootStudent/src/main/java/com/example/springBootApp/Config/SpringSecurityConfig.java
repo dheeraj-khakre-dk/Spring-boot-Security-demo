@@ -10,7 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
@@ -21,25 +22,31 @@ public class SpringSecurityConfig {
     public SpringSecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity security) throws Exception {
-        return  security
-        .csrf(cosumizer -> cosumizer.disable())
-        .authorizeHttpRequests(request -> request.anyRequest().authenticated())
-        .httpBasic(Customizer.withDefaults())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .build();
-        
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
-public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-     provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
-   // provider.setPasswordEncoder(new BCryptPasswordEncoder()); // Set your desired PasswordEncoder here
-    provider.setUserDetailsService(userDetailsService);
-    return provider;
-}
+    public SecurityFilterChain filterChain(HttpSecurity security) throws Exception {
+        return security.csrf(customizer -> customizer.disable())
+                .authorizeHttpRequests(request -> request
+                       .requestMatchers("/users/register", "/login").permitAll()
+                        .anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).build();
+
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userDetailsService);
+
+        return provider;
+    }
 
     
 }
