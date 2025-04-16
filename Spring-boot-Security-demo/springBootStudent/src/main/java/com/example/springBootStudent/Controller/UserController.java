@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.springBootStudent.Model.User;
 import com.example.springBootStudent.Service.MyUserDetailService;
 import com.example.springBootStudent.Service.UserService;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/users")
@@ -29,6 +31,16 @@ public class UserController {
     public User registerUser(@RequestBody User user) {
         
      return    userService.register(user);
+    }
+    
+    @GetMapping("/login")
+    public User authenticateUser(@RequestBody User user) {
+        return userService.authenticateUser(user);
+    }
+    
+    @GetMapping("/verify")
+    public String verify(@RequestBody User user) {
+        return userService.verify(user);
     }
     
 }
